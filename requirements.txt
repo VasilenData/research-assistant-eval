@@ -1,0 +1,7 @@
+numpy
+rank-bm25
+fastembed
+sentence-transformers
+transformers
+torch
+llama-cpp-python
