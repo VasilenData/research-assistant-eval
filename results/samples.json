@@ -1,0 +1,170 @@
+[
+  {
+    "q": "What is the expected regret bound for the algorithm in episodic tabular MDPs?",
+    "kind": "answerable",
+    "answer": "The expected regret bound for the algorithm in episodic tabular MDPs is $\\sqrt{H^3 S A K}$, where $H$ is the episode length, $K$ is the number of episodes, and $S$ and $A$ are the numbers of states and actions, respectively.",
+    "sources": [
+      "Closing the Log Gap: Minimax-Optimal Regret for Episodic RL",
+      "Satisficing Regret Minimization in Bandits with Knapsacks",
+      "Optimal Regret for Communication-Efficient Decentralized Online Learning",
+      "An $\u03a9(T^{3/4})$ lower bound for projection-free online learning with linear minimization oracles"
+    ],
+    "gold": "Closing the Log Gap: Minimax-Optimal Regret for Episodic RL"
+  },
+  {
+    "q": "What is the Rule Violation Score (RVS) and how does it differ from standard evaluation metrics?",
+    "kind": "answerable",
+    "answer": "The Rule Violation Score (RVS) is a complementary evaluation metric that quantifies the extent to which a predictive model respects a given set of logical rules, independently of predictive accuracy. RVS treats hard rules (strict constraints) and soft rules (statistical regularities) differently, can be evaluated on any dataset and on any predictive model expressed over a relational vocabulary, and can be computed using SQL queries that are automatically generated for Horn rules. RVS treats hard rules as strict constraints and soft rules as statistical regularities, allowing for a more nuanced evaluation of model compliance with logical constraints.",
+    "sources": [
+      "Beyond Accuracy: Measuring Logical Compliance of Predictive Models",
+      "Data Quality in RVL-CDIP: A Systematic Audit",
+      "Tie Handling Is Part of the Evaluation Protocol: An Order-Invariance Audit for Tie-Heavy Recommender Scores",
+      "Evidence First, Arithmetic Second: A System Report and Failure Analysis for DocSem"
+    ],
+    "gold": "Beyond Accuracy: Measuring Logical Compliance of Predictive Models"
+  },
+  {
+    "q": "What is the main obstacle in color style transfer?",
+    "kind": "answerable",
+    "answer": "The main obstacle in color style transfer is supervision, as an arbitrary real reference lacks a preset ground truth.",
+    "sources": [
+      "PREEN: Exemplar-Based Color Style Transfer with Smartphone Editor Presets",
+      "Graded-Relevance Composed Multimodal Retrieval for E-commerce Visual Search at Scale",
+      "Once a Tree, Always a Tree? Cross-lingual Transfer of Hierarchical Generalization in Language Models",
+      "Reading Beyond OCR Noise: Robust Cross-Lingual RAG for Legislative Archives"
+    ],
+    "gold": "PREEN: Exemplar-Based Color Style Transfer with Smartphone Editor Presets"
+  },
+  {
+    "q": "How does the Semantics Delivery Network (SemDN) improve content retrieval and answer quality?",
+    "kind": "answerable",
+    "answer": "The Semantics Delivery Network (SemDN) improves content retrieval and answer quality by indexing, searching, and caching web content at chunk granularity. It also estimates missing or stale evidence without an explicit miss signal, allows clients to choose retrieval representations that origins need not see, and shares state among clients with the same representation. Preliminary results show that page-first retrieval processes two to three orders of magnitude more content than agents consume, that agentic queries exhibit task-local chunk reuse invisible to URL caches, and that chunk delivery improves answer quality per context token.",
+    "sources": [
+      "Semantics Delivery Network: Rethinking Web Retrieval Infrastructure for LLM Agents",
+      "CiteGuard-RAG: A Validation-Centered AI System for Evidence-Grounded Question Answering",
+      "PRIME: Pre-Retrieval Index Modeling Enhancement for Structured Document Retrieval-Real",
+      "Predicting Partial Answer Quality and Utility in Agentic Retrieval-Augmented Generation"
+    ],
+    "gold": "Semantics Delivery Network: Rethinking Web Retrieval Infrastructure for LLM Agents"
+  },
+  {
+    "q": "How does Cognitive Resource Self-Allocation (CORAL) improve the performance of LLM agents on long-horizon tasks?",
+    "kind": "answerable",
+    "answer": "Cognitive Resource Self-Allocation (CORAL) improves the performance of LLM agents on long-horizon tasks by allowing agents to proactively optimize their context. Implemented as an agent-callable working memory management toolset, CORAL enables an agent to checkpoint its task progress and verified facts, and adaptively initiate a new problem-solving episode by resetting cluttered context while preserving only the checkpointed information. This approach mitigates the cognitive overload problem, allowing agents to resume reasoning from a clean state. On the GAIA benchmark, CORAL with an 8B model achieves 42.8% average accuracy, with particularly strong gains on the most challenging long-horizon tasks (Level 2 and Level 3). Additionally, CORAL consumes 6-7 times fewer input tokens than a ReAct agent, demonstrating its efficiency in terms of inference cost.",
+    "sources": [
+      "Don't Lose the Thread: Empowering Long-Horizon LLM Agents with Cognitive Resource Self-Allocation",
+      "Continual Learning Exam: Benchmarking Long-Horizon RSI and Experiential Learning in LLM Agents",
+      "ReflectPO: Reflection-Guided Policy Optimization for Long-Horizon LLM Agents",
+      "AutoRSE: Evaluating LLM Agents as Recommendation Engineers for Self-Evolving Recommender Systems"
+    ],
+    "gold": "Don't Lose the Thread: Empowering Long-Horizon LLM Agents with Cognitive Resource Self-Allocation"
+  },
+  {
+    "q": "How does PreView improve the accuracy of GUI grounding?",
+    "kind": "answerable",
+    "answer": "PreView improves the average grounding accuracy of Qwen3-VL-2B, OS-Atlas-4B, and Qwen3-VL-4B without further training these grounding models.",
+    "sources": [
+      "PreView: Enhancing GUI Grounding with Preprocessed Views and Cues",
+      "AdaGround: Token-Normalized Adaptive Zooming with Verifier-in-the-Loop Refinement for GUI Grounding",
+      "Grounding on Request: Learning Modality Control in Vision-Language Models",
+      "Knowledge-Graph Grounding Helps LLMs Only for Out-of-Training Knowledge: A Controlled Study on Clinical Question Answering"
+    ],
+    "gold": "PreView: Enhancing GUI Grounding with Preprocessed Views and Cues"
+  },
+  {
+    "q": "How do people and computational models extend the use of a novel verb in passive contexts?",
+    "kind": "answerable",
+    "answer": "People extend the use of a novel verb in passive contexts in a way consistent with abstract generalizations concerning linguistic form, even when no plausible meaning can be assigned to the novel verb. Large language models succeeded only when a meaning like an existing verb's could be assigned to the novel verb.",
+    "sources": [
+      "Examining form-based linguistic productivity in people and large language models",
+      "Humans in Space: Can MLLMs Construct Human-Centric Spatial Understanding via Active Exocentric Exploration?",
+      "Memory-Centric Continual Learning for AI Agents",
+      "How Depth Growth and Looping Shape In-Context Learning in Language Models"
+    ],
+    "gold": "Examining form-based linguistic productivity in people and large language models"
+  },
+  {
+    "q": "How did the harness reduce over-defensive writing in business-project drafts?",
+    "kind": "answerable",
+    "answer": "The harness reduced over-defensive writing in business-project drafts by isolating objections and filtering them out, which resulted in a 96.61% reduction in defensive propositions and no unsupported factual additions while the source-claim retention rose from 80.35% to 93.12%.",
+    "sources": [
+      "A Harness Reducing over-Defensive Writing in Agents by Isolating Objections",
+      "Multi-Draft On-Policy Distillation for Diffusion Drafters",
+      "AX is the New AEO",
+      "Harness Scaling for Generalizable Agentic Reinforcement Learning"
+    ],
+    "gold": "A Harness Reducing over-Defensive Writing in Agents by Isolating Objections"
+  },
+  {
+    "q": "How does the proposed semantics for provenance tracking in arbitrary commutative semirings differ from the standard semiring framework?",
+    "kind": "answerable",
+    "answer": "The proposed semantics for provenance tracking in arbitrary commutative semirings (m-semirings) differs from the standard semiring framework by not requiring additional operators. This approach allows for the introduction of a semantics for the provenance of queries in m-semirings without the need for extra operators. The semantics is shown to agree with the standard provenance of the aggregation-free self-join rewriting of HAVING COUNT(*) queries in semirings that are absorptive and where times distributes over monus.",
+    "sources": [
+      "Provenance of HAVING Queries in Semirings with Monus",
+      "Answering Conjunctive Queries with Aggregations under Updates",
+      "Containment of Conjunctive Queries with Negative Information over Semirings",
+      "PACMI: Provenance-Aware Cascading Memory Invalidation for Long-Term LLM Agents"
+    ],
+    "gold": "Provenance of HAVING Queries in Semirings with Monus"
+  },
+  {
+    "q": "How does varying the order of atoms and fragments in chemical language models affect the generation of new molecules?",
+    "kind": "answerable",
+    "answer": "[1] Randomized SAFE with increasing corpus sizes raises the genuine yield of novel molecules more than 450-fold, turning a model that merely reproduces its training set into a practical molecular generator. The two axes of randomization act jointly rather than additively: atom order alone reaches a tenth, and fragment order alone a seventh, of the genuine yield obtained when both vary, which is four times their combined contribution. At matched corpus size and compute, randomized SAFE delivers 2.8 times the genuine yield of randomized SMILES.",
+    "sources": [
+      "What to randomize matters: a controlled study of volume, axis and representation in low-data molecular generation",
+      "Cord: Confidence-Anchored Order Residual Decoding for Masked Diffusion Language Models",
+      "HiLo-RD: Cross-Budget Self-Distillation for Masked Diffusion Language Models",
+      "Spherical Brownian Diffusion for Language Modeling"
+    ],
+    "gold": "What to randomize matters: a controlled study of volume, axis and representation in low-data molecular generation"
+  },
+  {
+    "q": "How does \\ours{} improve identity association in MOT?",
+    "kind": "answerable",
+    "answer": "\\ours{} improves identity association in MOT by explicitly modeling the directional observation bias caused by occlusion. It infers a soft front-back ordering from box overlap and relative bottom positions, and estimates directional occlusion coverage and depth. The model constructs a mixture of one clean and four directional occlusion observation components, using a five-dimensional observation comprising box center, area, confidence, and aspect ratio. The directional mixture likelihood is used in high-confidence association, low-confidence association, and track recovery; ambiguity penalties and local order-consistency swaps further reduce identity errors among nearby objects. On the DanceTrack validation split, \\ours{} improves HOTA from 63.00 to 66.34, AssA from 45.10 to 49.57, and IDF1 from 62.19 to 65.28 over OA-SORT with the same detector and evaluation protocol. The gains are concentrated in association quality while detection accuracy remains stable.",
+    "sources": [
+      "DOA-SORT: Directional Occlusion-Aware Multi-Object Tracking with Distributional Observations",
+      "Rethinking Retrieval in the Long-Context Era: Training-Free Semantic Trees for Adaptive Context Construction",
+      "Information-Gain Calibrated On-Policy Distillation for Deep Search Agents",
+      "SSEmb: Training a Generalizable Speech Retrieval Model Using Only Automatic Speech Recognition Data"
+    ],
+    "gold": "DOA-SORT: Directional Occlusion-Aware Multi-Object Tracking with Distributional Observations"
+  },
+  {
+    "q": "How does the number of biased responses relate to the level of abstention in small and quantized language models?",
+    "kind": "answerable",
+    "answer": "The number of biased responses in small and quantized language models does not necessarily correlate directly with the level of abstention. The study found that 20 out of 26 configurations with fewer biased responses also showed increased over-abstention, indicating that lower observed bias can partly reflect greater abstention. This suggests that the relationship between biased responses and abstention is complex and context-dependent.",
+    "sources": [
+      "Effects of Model Scale and Quantization on Social Bias and Abstention in Question Answering",
+      "CalibraRL: Confidence-Calibrated Reinforcement Learning for Mitigating Hallucinations in RAG",
+      "Right On Q: Recovering Reasoning under Quantization via Self-Generated Trajectories",
+      "Invisibilization as a Source of Probability Bias in Language Models"
+    ],
+    "gold": "Effects of Model Scale and Quantization on Social Bias and Abstention in Question Answering"
+  },
+  {
+    "q": "How does ECHO address the issue of catastrophic forgetting in LLMs?",
+    "kind": "answerable",
+    "answer": "ECHO addresses the issue of catastrophic forgetting in LLMs by proposing a closed-loop control framework that decomposes the KL divergence into output entropy as a dominant observable component of KL variation. This enables the identification of entropy as a computationally efficient online proxy to monitor forgetting risks in real-time. ECHO employs an elastic controller that dynamically modulates the gradient weight of replay data via a proportional control law, using deviations from the pre-trained entropic equilibrium as an error signal. This approach allows ECHO to maintain high operational robustness against varying data mixing ratios.",
+    "sources": [
+      "Entropic Control for Homeostatic Optimization: Pre-empting Catastrophic Forgetting via Dynamic Feedback",
+      "CaLLM: Continual Adaptation of LLMs via Non-Parametric Adapter Routing",
+      "Matched Excess-Outranker Regularization for Candidate-Set Interference in Continual Knowledge Graph Embedding",
+      "When LLMs Forget What They Believe: Characterizing State Integrity Collapse in Long-Horizon Dialogues"
+    ],
+    "gold": "Entropic Control for Homeostatic Optimization: Pre-empting Catastrophic Forgetting via Dynamic Feedback"
+  },
+  {
+    "q": "What is the CRPW problem and how does it extend the concept of RPWs?",
+    "kind": "answerable",
+    "answer": "The CRPW problem is a representative possible world finding problem that extends the concept of RPWs from preserving node-level statistics to preserving pairwise structural relationships. It seeks the possible world that best preserves the expected numbers of common neighbors between node pairs. The problem is proven to be NP-hard, and a two-stage basic algorithm is developed to quickly initialize a possible world and then refine it iteratively. An efficient integer counting strategy is used to accelerate the refinement, and a Beta-based adaptive termination method is designed to stop the refinement once the desired quality of the possible world is reached.",
+    "sources": [
+      "Common-Neighbor-Count-Based Representative Possible World Finding on Uncertain Graphs",
+      "3D Spatial Pattern Matching",
+      "Reinforcement learning for control of partial differential equations",
+      "Incentivizing Self-Learning in Large Language Models via Reinforcement Learning"
+    ],
+    "gold": "Common-Neighbor-Count-Based Representative Possible World Finding on Uncertain Graphs"
+  }
+]

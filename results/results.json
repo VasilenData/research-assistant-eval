@@ -1,0 +1,177 @@
+{
+  "corpus_papers": 2835,
+  "answerable": 200,
+  "unanswerable": 30,
+  "retrieval": {
+    "bm25": {
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "recall@5_ci": [
+        1.0,
+        1.0
+      ],
+      "recall@10": 1.0,
+      "mrr@10": 1.0
+    },
+    "dense": {
+      "recall@1": 0.835,
+      "recall@5": 0.92,
+      "recall@5_ci": [
+        0.88,
+        0.955
+      ],
+      "recall@10": 0.95,
+      "mrr@10": 0.87203373015873
+    },
+    "hybrid (RRF)": {
+      "recall@1": 0.955,
+      "recall@5": 0.995,
+      "recall@5_ci": [
+        0.985,
+        1.0
+      ],
+      "recall@10": 1.0,
+      "mrr@10": 0.9727976190476191
+    },
+    "hybrid + rerank": {
+      "recall@1": 0.99,
+      "recall@5": 1.0,
+      "recall@5_ci": [
+        1.0,
+        1.0
+      ],
+      "recall@10": 1.0,
+      "mrr@10": 0.995
+    }
+  },
+  "retrieval_masked": {
+    "bm25": {
+      "recall@1": 0.92,
+      "recall@5": 0.96,
+      "recall@5_ci": [
+        0.93,
+        0.985
+      ],
+      "recall@10": 0.97,
+      "mrr@10": 0.9364999999999999
+    },
+    "dense": {
+      "recall@1": 0.695,
+      "recall@5": 0.795,
+      "recall@5_ci": [
+        0.735,
+        0.85
+      ],
+      "recall@10": 0.825,
+      "mrr@10": 0.734470238095238
+    },
+    "hybrid (RRF)": {
+      "recall@1": 0.805,
+      "recall@5": 0.955,
+      "recall@5_ci": [
+        0.925,
+        0.98
+      ],
+      "recall@10": 0.965,
+      "mrr@10": 0.868589285714286
+    },
+    "hybrid + rerank": {
+      "recall@1": 0.925,
+      "recall@5": 0.965,
+      "recall@5_ci": [
+        0.94,
+        0.99
+      ],
+      "recall@10": 0.97,
+      "mrr@10": 0.9433333333333335
+    }
+  },
+  "masked_example": {
+    "original": "What feature-based interpretability framework is introduced for autoregressive voice-cloning TTS models?",
+    "masked": "What feature-based interpretability framework is introduced for autoregressive voice-cloning TTS models?"
+  },
+  "abstention_threshold": {
+    "tau": 3.3317065238952637,
+    "dev_answerable_pass": 0.925,
+    "dev_unanswerable_blocked": 1.0,
+    "dev_answerable": 40,
+    "dev_unanswerable": 10
+  },
+  "judge_validation": {
+    "n_pairs": 200,
+    "supported_accepted": 0.73,
+    "unsupported_rejected": 0.98,
+    "accuracy": 0.855
+  },
+  "systems": [
+    {
+      "system": "closed-book LLM",
+      "n_answerable": 160,
+      "n_unanswerable": 20,
+      "answers_reference_fact": 0.0375,
+      "answers_reference_fact_ci": [
+        0.0125,
+        0.06875
+      ],
+      "false_abstain_rate": 0.225,
+      "correct_abstain_rate": 0.35,
+      "unanswerable_answered_confidently": 0.65,
+      "faithfulness": 0.171875,
+      "valid_citation_rate": 1.0,
+      "mean_seconds": 0.4998674366209242
+    },
+    {
+      "system": "RAG",
+      "n_answerable": 160,
+      "n_unanswerable": 20,
+      "answers_reference_fact": 0.50625,
+      "answers_reference_fact_ci": [
+        0.43125,
+        0.5875
+      ],
+      "false_abstain_rate": 0.0,
+      "correct_abstain_rate": 0.75,
+      "unanswerable_answered_confidently": 0.25,
+      "faithfulness": 0.7601078167115903,
+      "valid_citation_rate": 0.0673854447439353,
+      "mean_seconds": 5.89322363668018
+    },
+    {
+      "system": "RAG + retrieval gate",
+      "n_answerable": 160,
+      "n_unanswerable": 20,
+      "answers_reference_fact": 0.45625,
+      "answers_reference_fact_ci": [
+        0.38125,
+        0.5375
+      ],
+      "false_abstain_rate": 0.1,
+      "correct_abstain_rate": 1.0,
+      "unanswerable_answered_confidently": 0.0,
+      "faithfulness": 0.7708333333333334,
+      "valid_citation_rate": 0.06845238095238096,
+      "mean_seconds": 5.893221357133654
+    },
+    {
+      "system": "RAG + gate + claim guard",
+      "n_answerable": 160,
+      "n_unanswerable": 20,
+      "answers_reference_fact": 0.35625,
+      "answers_reference_fact_ci": [
+        0.28125,
+        0.43125
+      ],
+      "false_abstain_rate": 0.20625,
+      "correct_abstain_rate": 1.0,
+      "unanswerable_answered_confidently": 0.0,
+      "faithfulness": 1.0,
+      "valid_citation_rate": 1.0,
+      "mean_seconds": 5.893296137120989
+    }
+  ],
+  "gold_in_top4_sources": 1.0,
+  "test_split": {
+    "answerable": 160,
+    "unanswerable": 20
+  }
+}
