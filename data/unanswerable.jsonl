@@ -1,0 +1,30 @@
+{"question": "What is the best way to make a sourdough starter from scratch?", "kind": "off_topic"}
+{"question": "Who won the football World Cup in 2018?", "kind": "off_topic"}
+{"question": "How many calories are in a medium banana?", "kind": "off_topic"}
+{"question": "What is the capital of Australia and when was it founded?", "kind": "off_topic"}
+{"question": "Which exercises best strengthen the lower back?", "kind": "off_topic"}
+{"question": "How do I change a flat tire on a bicycle?", "kind": "off_topic"}
+{"question": "What were the main causes of the French Revolution?", "kind": "off_topic"}
+{"question": "What is a good itinerary for three days in Lisbon?", "kind": "off_topic"}
+{"question": "How long should I boil an egg for a soft yolk?", "kind": "off_topic"}
+{"question": "Which houseplants grow well in low light?", "kind": "off_topic"}
+{"question": "What is the difference between a Roth IRA and a traditional IRA?", "kind": "off_topic"}
+{"question": "How does a mortgage amortization schedule work?", "kind": "off_topic"}
+{"question": "What are the rules of cricket?", "kind": "off_topic"}
+{"question": "How do I remove a red wine stain from a carpet?", "kind": "off_topic"}
+{"question": "What time does the sun set in Reykjavik in December?", "kind": "off_topic"}
+{"question": "What F1 score did the Zorblax-7B model reach on the QuantumQA benchmark?", "kind": "fabricated"}
+{"question": "How does the HyperLoom retrieval architecture reduce latency compared with ColBERT on the MegaCorpus-9 dataset?", "kind": "fabricated"}
+{"question": "What accuracy does the Lumina-Reason agent achieve on the NovaLogic-14 evaluation suite?", "kind": "fabricated"}
+{"question": "Which attention variant does the Frostbyte transformer use to handle 10 million token contexts?", "kind": "fabricated"}
+{"question": "What training objective does the VelvetNet recommender use for cold-start users on the Kestrel-100 dataset?", "kind": "fabricated"}
+{"question": "How many parameters does the Orchid-MoE-3T language model have, and how many experts does it route to?", "kind": "fabricated"}
+{"question": "What recall@10 does the PolarisDB vector index report on the Glimmer-1B benchmark?", "kind": "fabricated"}
+{"question": "Which pruning method does the Tessellate-LLM compression paper apply to reach a 97 percent size reduction?", "kind": "fabricated"}
+{"question": "What BLEU score does the Aurora-Translate system report on the Kaleido low-resource corpus?", "kind": "fabricated"}
+{"question": "How does the Mirage-RAG framework detect poisoned documents in the Wraith-5 corpus?", "kind": "fabricated"}
+{"question": "What is the throughput of the Cinder stream processor on the Ember-Bench SQL workload?", "kind": "fabricated"}
+{"question": "Which loss function does the Quasar-CLIP model use to align text with seismic images?", "kind": "fabricated"}
+{"question": "What is the win rate of the Helix-Agent against GPT-9 on the Labyrinth coding arena?", "kind": "fabricated"}
+{"question": "How does the Obsidian tokenizer handle Sumerian cuneiform inside multilingual models?", "kind": "fabricated"}
+{"question": "What error rate does the Zephyrine speech model reach on the Tundra-Accents test set?", "kind": "fabricated"}
