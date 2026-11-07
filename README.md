@@ -1,4 +1,4 @@
-# research-assistant-eval
+# Evaluated AI research assistant
 
 A small research assistant that answers questions from 2,835 arXiv abstracts, plus the evaluation that shows
 **which parts of it actually help**. The assistant uses hybrid retrieval, a local 1.5B model, an abstention gate and a claim checker.
