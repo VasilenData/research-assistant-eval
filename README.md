@@ -1,5 +1,7 @@
 # Evaluated AI research assistant
 
+[![ci](https://github.com/VasilenData/research-assistant-eval/actions/workflows/ci.yml/badge.svg)](https://github.com/VasilenData/research-assistant-eval/actions/workflows/ci.yml)
+
 A small research assistant that answers questions from 2,835 arXiv abstracts, plus the evaluation that shows
 **which parts of it actually help**. The assistant uses hybrid retrieval, a local 1.5B model, an abstention gate and a claim checker.
 The point of the repo is the measurement: every component is added, switched off and compared on held-out questions, with confidence intervals, and the checker's own accuracy is measured too.
