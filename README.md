@@ -96,7 +96,7 @@ pip install -r requirements-dev.txt && PYTHONPATH=src pytest -q    # determinist
 - **The questions are LLM-generated.** 200 answerable questions were written by a language model from the abstracts and filtered for specificity (at least two rare terms, no "this paper", not a copy of the title). I spot-checked 12: most are specific and a few are vague. Treat absolute numbers as indicative and the differences between systems as the finding.
 - **The 30 unanswerable questions are hand-written**: 15 off-topic and 15 naming models or benchmarks that do not exist. Only 20 are in the test split, so their rates move in 5-point steps.
 - **The generator and the system share a model family.** Questions came from an LLM and answers come from one, which can flatter fluency-based metrics. The retrieval table and the judge validation do not depend on this.
-- **One small model, one corpus, one run.** Qwen2.5-1.5B with greedy decoding. Results are repeatable but not averaged over seeds, and a larger model would score higher.
+- **One small model, one corpus, one run.** Qwen2.5-1.5B with greedy decoding. The recorded results come from one seeded run; other seeds and larger models were not compared.
 - **Latency is CPU, one core**, about 5.9 s per RAG answer, almost all of it generation. The claim guard adds NLI checking time on top, which the evaluation does not report separately.
 - Model weights and the embedding cache are not committed. The corpus is public arXiv metadata.
 
