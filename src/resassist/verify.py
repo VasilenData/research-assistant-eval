@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from weakref import WeakKeyDictionary
 
 import numpy as np
 
@@ -39,18 +40,21 @@ def windows(paper: Paper, size: int = 2) -> list[str]:
 
 
 _WORD = re.compile(r"[a-z0-9]+")
-_CACHE: dict[tuple, float] = {}
+_CACHE: WeakKeyDictionary = WeakKeyDictionary()
 
 
 def best_support(nli, hypothesis: str, paper: Paper, top_windows: int = 3) -> float:
     """Max entailment over the few abstract windows that share the most words with the claim (a cheap lexical
     pre-filter keeps CPU cost bounded; results are memoised because several systems judge the same text)."""
-    key = (id(nli), hypothesis, paper.id)
-    if key not in _CACHE:
+    if not isinstance(top_windows, int) or top_windows < 1:
+        raise ValueError("top_windows must be a positive integer")
+    cache = _CACHE.setdefault(nli, {})
+    key = (hypothesis, paper.id, paper.title, paper.abstract, top_windows)
+    if key not in cache:
         h = set(_WORD.findall(hypothesis.lower()))
         wins = sorted(windows(paper), key=lambda w: -len(h & set(_WORD.findall(w.lower()))))[:top_windows]
-        _CACHE[key] = max(nli.entailment([(w, hypothesis) for w in wins]), default=0.0)
-    return _CACHE[key]
+        cache[key] = max(nli.entailment([(w, hypothesis) for w in wins]), default=0.0)
+    return cache[key]
 
 
 @dataclass

@@ -62,6 +62,8 @@ class Assistant:
         hits = self.retriever.search(question, self.top_k)
         sources = [self.papers[i] for i, _ in hits]
         scores = [s for _, s in hits]
+        if not hits:
+            return Answer(question, ABSTAIN, [], [], True, "no retrieved sources")
         # Gate 1: retrieval confidence. Nothing relevant was found, so do not let the model improvise.
         if self.min_score is not None and scores[0] < self.min_score:
             return Answer(question, ABSTAIN, sources, scores, True, "low retrieval score")
