@@ -10,10 +10,10 @@ Everything runs on a CPU. No API keys, no paid model.
 
 ## What was measured
 
-Corpus: 2,835 arXiv abstracts (cs.CL, cs.IR, cs.LG, cs.DB) from June to October 2026, so they are newer than the model's training data and the model cannot answer from memory.
+Corpus: 2,835 arXiv abstracts (cs.CL, cs.IR, cs.LG, cs.DB) from June to October 2026, selected to reduce overlap with the answer model's training period; publication dates alone do not prove the absence of memorized or related knowledge.
 Test split: 160 answerable and 20 unanswerable questions. The threshold was chosen on a separate dev split (40 + 10).
 
-| System | Answers contain the reference fact | Wrongly abstains | Correctly abstains on unanswerable | Claims supported by a source |
+| System | Answers contain the reference fact | Wrongly abstains | Correctly abstains on unanswerable | Judge-supported claims on answered, answerable questions |
 |---|---|---|---|---|
 | Closed-book model | 3.8% (95% CI 1.3 to 6.9) | 22.5% | 35% | 17% |
 | RAG | **50.6%** (43.1 to 58.8) | 0% | 75% | 76% |
@@ -23,8 +23,8 @@ Test split: 160 answerable and 20 unanswerable questions. The threshold was chos
 What this says:
 
 - **Retrieval is what makes the model useful.** Same model, same questions: 3.8% closed-book against 50.6% with retrieved abstracts.
-- **The retrieval gate fixes abstention.** Without it, 25% of unanswerable questions (off-topic, or naming models and benchmarks that do not exist) got a confident answer. With it, none did. The price is 10% of answerable questions refused.
-- **The claim guard trades coverage for trust.** It removes every sentence that no provided abstract supports and adds a verified `[n]` citation to the ones that survive. Supported-claim rate goes to 100% by construction, and the share of answers containing the reference fact drops from 45.6% to 35.6%. Use it where a wrong claim is worse than a missing one.
+- **The retrieval gate improved abstention on this test split.** Without it, 25% of unanswerable questions (off-topic, or naming models and benchmarks that do not exist) got a confident answer. With it, none did. The price is 10% of answerable questions refused.
+- **The claim guard trades coverage for trust.** It removes sentences that this NLI judge does not rate as supported and adds an attributed `[n]` citation to the survivors. This is model-based checking, not independent verification. Supported-claim rate goes to 100% by construction, and the share of answers containing the reference fact drops from 45.6% to 35.6%. Use it where a wrong claim is worse than a missing one.
 - **The 1.5B model almost never writes citations on its own.** Prompted to end each sentence with `[n]`, it did so for only about 7% of sentences. That is why the guard attributes each sentence to the best-supporting source after generation instead of trusting the model's citations.
 
 ### Retrieval quality
@@ -40,11 +40,11 @@ Recall of the one abstract each question was written from (200 questions):
 
 The questions were generated from the abstracts and filtered to be specific, so they share exact terms with the answer and BM25 scores a perfect 1.000. That number is **inflated by construction** and should not be read as BM25 being perfect.
 To show it, the last column removes from each question the words that are rare in the corpus and appear in the gold abstract. Keyword search then drops to 0.96, dense to 0.795, and the reranked hybrid holds at 0.965.
-The honest reading: on realistic questions, hybrid retrieval with reranking is the most robust choice, and the gap between retrievers is larger than the unmasked table suggests.
+The masked experiment suggests less sensitivity to this particular lexical perturbation for the reranked system. It does not establish the best retriever for naturally written user questions, which were not evaluated.
 
 ### The judge is not ground truth
 
-Claim checking uses an NLI model (`cross-encoder/nli-deberta-v3-small`). Its accuracy was measured on 200 true pairs (a reference fact against its own abstract) and 200 false pairs (against a random abstract):
+Claim checking uses an NLI model (`cross-encoder/nli-deberta-v3-small`). Its accuracy was measured on 200 true pairs (a reference fact against its own abstract) and 200 assumed mismatched pairs (against a random abstract; these were not manually proven to be unsupported):
 
 | | |
 |---|---|
@@ -52,7 +52,7 @@ Claim checking uses an NLI model (`cross-encoder/nli-deberta-v3-small`). Its acc
 | False facts rejected | 98% |
 | Accuracy | 85.5% |
 
-Feeding the whole abstract as the premise gave only 61% accuracy and accepted 22.5% of true facts, so the judge uses overlapping two-sentence windows of the abstract instead. Because 27% of true facts are still rejected, the "contains the reference fact" and "supported" numbers are **lower bounds**, not exact rates.
+Feeding the whole abstract as the premise gave only 61% accuracy and accepted 22.5% of true facts, so the judge uses overlapping two-sentence windows of the abstract instead. Both false negatives and false positives are possible, so the "contains the reference fact" and "supported" numbers are judge-dependent estimates, not proven lower bounds or ground truth.
 
 ## How it works
 
@@ -88,7 +88,7 @@ PYTHONPATH=src python -m resassist.evaluate         # about 1 hour on one CPU co
 Tests need only numpy and pytest, because the model, retrievers and judge are replaced by fakes:
 
 ```bash
-pip install -r requirements-dev.txt && PYTHONPATH=src pytest -q    # 21 tests
+pip install -r requirements-dev.txt && PYTHONPATH=src pytest -q    # deterministic tests; no model downloads
 ```
 
 ## Limits
@@ -106,3 +106,8 @@ pip install -r requirements-dev.txt && PYTHONPATH=src pytest -q    # 21 tests
 - **Threshold chosen on dev only.** The abstention threshold never saw the test questions.
 - **Judge before trusting the guard.** The first version fed whole abstracts to the NLI model, and the guard then deleted nearly every answer (judge accuracy 61%). Measuring the judge exposed that, and switching to sentence windows fixed it.
 - **Attribute citations after generation.** The small model does not cite reliably, so the guard assigns and verifies citations itself.
+
+## Reliability checks
+The assistant abstains without generation when retrieval returns no sources. Embedding caches are checked against the ordered corpus, model name and vector contents; legacy, mismatched or corrupt caches are rebuilt. Claim-score caches distinguish changed source text and judge instances. Negative judge-validation pairs exclude the gold document, although another document may still support the fact.
+
+The stored model-evaluation tables are historical measurements, not regenerated by the lightweight regression suite. The guard is scored by the same NLI judge used to filter it, so a 100% judge-supported rate is circular and does not prove factual correctness.
