@@ -47,3 +47,11 @@ def test_confident_retrieval_calls_the_llm_and_keeps_sources():
 def test_model_abstention_is_recorded():
     a = A.Assistant(PAPERS, FakeRetriever([5.0]), FakeLLM(A.ABSTAIN)).ask("?")
     assert a.abstained and a.reason == "model abstained"
+
+
+def test_empty_retrieval_abstains_with_or_without_a_gate():
+    for threshold in (None, 2.0):
+        llm = FakeLLM("unsupported answer")
+        answer = A.Assistant(PAPERS, FakeRetriever([]), llm, min_score=threshold).ask("How?")
+        assert answer.abstained and answer.reason == "no retrieved sources"
+        assert answer.sources == [] and llm.calls == 0

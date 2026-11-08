@@ -80,8 +80,15 @@ def choose_threshold(retriever: Retriever, dev_ans: list[dict], dev_unans: list[
 def judge_validation(nli: NLI, answerable: list[dict], papers: list, id_to_idx: dict[str, int], seed: int = 3) -> dict:
     """Is the NLI judge any good? Reference facts must be entailed by their own abstract and not by a random one."""
     rng = random.Random(seed)
+    if len(papers) < 2 or not answerable:
+        raise ValueError("judge validation requires examples and at least two papers")
     p = [best_support(nli, r["reference"], papers[id_to_idx[r["gold_id"]]]) for r in answerable]
-    n = [best_support(nli, r["reference"], papers[rng.randrange(len(papers))]) for r in answerable]
+    negatives = []
+    for row in answerable:
+        gold = id_to_idx[row["gold_id"]]
+        other = rng.randrange(len(papers) - 1)
+        negatives.append(papers[other + (other >= gold)])
+    n = [best_support(nli, row["reference"], paper) for row, paper in zip(answerable, negatives)]
     return {"n_pairs": len(p), "supported_accepted": float(np.mean(np.array(p) >= 0.5)),
             "unsupported_rejected": float(np.mean(np.array(n) < 0.5)),
             "accuracy": float((np.sum(np.array(p) >= 0.5) + np.sum(np.array(n) < 0.5)) / (len(p) + len(n)))}

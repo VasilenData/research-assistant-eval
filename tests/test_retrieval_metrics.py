@@ -32,3 +32,18 @@ def test_summarize_counts_abstentions_and_faithfulness():
     s = summarize("x", rows)
     assert s["false_abstain_rate"] == 0.5 and s["correct_abstain_rate"] == 0.5
     assert s["faithfulness"] == 1.0 and s["answers_reference_fact"] == 0.5
+
+
+def test_judge_negative_pairs_never_use_the_gold_paper(monkeypatch):
+    from resassist import evaluate
+    from resassist.corpus import Paper
+    papers = [Paper(str(i), str(i), "abstract", "2026-01-01", "cs.CL") for i in range(2)]
+    pairs = []
+    def record(nli, hypothesis, paper):
+        pairs.append((hypothesis, paper.id))
+        return float(hypothesis == paper.id)
+    monkeypatch.setattr(evaluate, "best_support", record)
+    examples = [{"gold_id": str(i % 2), "reference": str(i % 2)} for i in range(20)]
+    result = evaluate.judge_validation(None, examples, papers, {"0": 0, "1": 1})
+    assert all(hypothesis != paper_id for hypothesis, paper_id in pairs[len(examples):])
+    assert result["accuracy"] == 1

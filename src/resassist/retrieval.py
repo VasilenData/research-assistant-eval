@@ -1,6 +1,8 @@
 """Hybrid retrieval: BM25 + dense embeddings fused with RRF, then a cross-encoder rerank."""
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -12,6 +14,11 @@ STOP = frozenset("a an the of in on at to for and or is are was were be been by 
 
 def tokenize(text: str) -> list[str]:
     return [t for t in TOKEN.findall(text.lower()) if t not in STOP]
+
+
+def _vector_digest(vectors: np.ndarray) -> str:
+    descriptor = f"{vectors.dtype.str}:{vectors.shape}:".encode()
+    return hashlib.sha256(descriptor + vectors.tobytes()).hexdigest()
 
 
 def rrf(rankings: list[list[int]], k: int = 60, top: int = 50) -> list[int]:
@@ -37,14 +44,44 @@ class Dense:
 
     def __init__(self, docs: list[str], model: str = "BAAI/bge-small-en-v1.5", cache: Path | None = None):
         from fastembed import TextEmbedding
+        if not docs:
+            raise ValueError("the embedding corpus must not be empty")
         self.model = TextEmbedding(model_name=model)
-        if cache and cache.exists():
-            self.vecs = np.load(cache)
-        else:
+        fingerprint = hashlib.sha256(json.dumps({"model": model, "docs": docs},
+                                                ensure_ascii=False).encode("utf-8")).hexdigest()
+        meta_path = cache.with_suffix(cache.suffix + ".json") if cache else None
+        self.vecs = None
+        if cache and cache.exists() and meta_path.exists():
+            try:
+                metadata = json.loads(meta_path.read_text(encoding="utf-8"))
+                if isinstance(metadata, dict) and metadata.get("fingerprint") == fingerprint:
+                    candidate = np.load(cache, allow_pickle=False)
+                    if (isinstance(candidate, np.ndarray) and candidate.ndim == 2
+                            and candidate.shape[0] == len(docs) and candidate.shape[1] > 0
+                            and candidate.dtype.kind in "fiu"):
+                        with np.errstate(over="raise", invalid="raise"):
+                            converted = candidate.astype(np.float32)
+                        norms = np.linalg.norm(converted.astype(np.float64), axis=1)
+                        if (np.isfinite(converted).all() and np.isfinite(norms).all() and (norms > 0).all()
+                                and _vector_digest(candidate) == metadata["vectors_digest"]):
+                            self.vecs = converted
+            except (OSError, ValueError, TypeError, FloatingPointError, KeyError, EOFError):
+                pass  # Corrupt, legacy or mismatched caches are rebuilt from the supplied corpus.
+        if self.vecs is None:
             self.vecs = np.array(list(self.model.embed(docs, batch_size=64)), dtype=np.float32)
+            if (self.vecs.ndim != 2 or self.vecs.shape[0] != len(docs)
+                    or not np.isfinite(self.vecs).all()
+                    or not (np.linalg.norm(self.vecs.astype(np.float64), axis=1) > 0).all()):
+                raise ValueError("embedding model returned invalid corpus vectors")
             if cache:
-                np.save(cache, self.vecs)
-        self.vecs /= np.linalg.norm(self.vecs, axis=1, keepdims=True)
+                cache.parent.mkdir(parents=True, exist_ok=True)
+                with cache.open("wb") as output:
+                    np.save(output, self.vecs, allow_pickle=False)
+                meta_path.write_text(json.dumps({"fingerprint": fingerprint, "model": model,
+                                                "vectors_digest": _vector_digest(self.vecs)}), encoding="utf-8")
+        # Accumulate norms in float64 so large but finite float32 values cannot
+        # overflow during squaring and silently normalize to all-zero vectors.
+        self.vecs /= np.linalg.norm(self.vecs.astype(np.float64), axis=1, keepdims=True)
 
     def search(self, query: str, k: int = 50) -> list[int]:
         q = np.array(list(self.model.query_embed([query])))[0]

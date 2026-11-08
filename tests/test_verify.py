@@ -48,3 +48,19 @@ def test_windows_include_title_and_cover_short_abstracts():
 def test_guard_ignores_citation_only_fragments():
     kept, _ = verify.guard(FakeNLI(), "Cats sleep a lot [1]. [1]", SRC)
     assert kept == "Cats sleep a lot [1]."
+
+
+def test_revised_source_with_the_same_id_does_not_reuse_a_support_score():
+    judge = FakeNLI()
+    old = Paper("same", "Cats", "Cats sleep.", "2026-01-01", "cs.CL")
+    revised = Paper("same", "Cats", "Cats run.", "2026-01-02", "cs.CL")
+    assert verify.best_support(judge, "Cats sleep.", old) == 1
+    assert verify.best_support(judge, "Cats sleep.", revised) == 0
+
+
+def test_distinct_judges_do_not_share_cached_scores():
+    class RejectAll:
+        def entailment(self, pairs):
+            return [0.] * len(pairs)
+    assert verify.best_support(FakeNLI(), "Cats sleep.", SRC[0]) == 1
+    assert verify.best_support(RejectAll(), "Cats sleep.", SRC[0]) == 0

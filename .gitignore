@@ -2,6 +2,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 data/embeddings.npy
+data/embeddings.npy.json
 models/
 *.gguf
 results/.llm_cache.jsonl
