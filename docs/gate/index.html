@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Measured retrieval quality and a fail-closed regression gate on the research assistant corpus.">
+<title>Research Assistant · Release evidence</title>
+<style>
+:root{color-scheme:dark;--bg:#151b20;--panel:#202a31;--ink:#eef4f3;--muted:#b4c3c8;--mint:#85e5bd;--line:#3a4a50}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 system-ui,sans-serif}main{max-width:1060px;margin:auto;padding:56px 28px 80px}a{color:var(--mint);text-underline-offset:4px}header{max-width:790px}.eyebrow{color:var(--mint);font-size:13px;letter-spacing:.15em;text-transform:uppercase}h1{font-size:clamp(32px,6vw,55px);line-height:1.12;letter-spacing:-.035em;margin:20px 0}h2{font-size:23px;margin:32px 0 12px}p{color:var(--muted)}.status{display:inline-block;border:1px solid var(--mint);border-radius:30px;padding:5px 15px;color:var(--mint);font-weight:600}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0}.card{background:var(--panel);border:1px solid var(--line);padding:22px;border-radius:12px}.label{font-size:14px;color:var(--muted)}.value{font-size:32px;line-height:1.4;font-weight:700}.note{border-left:3px solid var(--mint);padding:1px 18px;margin:25px 0}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:13px 12px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:14px;font-weight:500}td:first-child{font-weight:600}.checks{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0;list-style:none}.checks li{padding:10px 14px;background:var(--panel);border-radius:7px}.fine{font-size:14px;color:var(--muted)}code{overflow-wrap:anywhere;font-size:12px}.actions{display:flex;flex-wrap:wrap;gap:22px;margin:26px 0}#error{color:#ffbead}footer{margin-top:45px;border-top:1px solid var(--line);padding-top:20px}@media(max-width:650px){main{padding:30px 19px 60px}.grid{grid-template-columns:1fr}.checks{grid-template-columns:1fr}.value{font-size:28px}th,td{padding:10px 6px}}
+</style>
+<main>
+<header>
+<div class="eyebrow">Vasilen Kanchev · Evaluation infrastructure</div>
+<h1>Make regressions visible before release.</h1>
+<p>A versioned evaluation gate compares the same questions, checks quality and operating budgets, and retains the last passing evidence when a candidate fails.</p>
+<span class="status" id="status">Loading recorded evidence…</span>
+</header>
+<p id="error" role="alert" hidden></p>
+<section id="results" hidden>
+<div class="grid">
+<div class="card"><div class="label">Paired test questions</div><div class="value" id="tasks"></div><div class="fine">Source-document groups retained</div></div>
+<div class="card"><div class="label">Candidate MRR@10</div><div class="value" id="quality"></div><div class="fine">Gold abstract's reciprocal rank</div></div>
+<div class="card"><div class="label">Candidate p95 search latency</div><div class="value" id="latency"></div><div class="fine">Warm, single-process local run</div></div>
+</div>
+<div class="note"><p><strong>Scope matters.</strong> This is a retrieval evaluation over 2,835 arXiv abstracts. The questions were generated from the source abstracts, favoring lexical matching. It does not measure generated-answer factuality, production traffic or a new LLM benchmark.</p></div>
+<h2>Quality and performance together</h2>
+<div class="tablewrap"><table><thead><tr><th>System</th><th>MRR@10</th><th>p50 search</th><th>p95 search</th><th>Error rate</th></tr></thead><tbody id="scores"></tbody></table></div>
+<p id="delta"></p>
+<h2>Five explicit release checks</h2><ul class="checks" id="checks"></ul>
+<p class="fine" id="cost"></p>
+<h2>What happens when a change breaks retrieval?</h2>
+<p>The accompanying recovery exercise reverses actual BM25 top-10 results. The candidate falls from MRR@10 1.0 to 0.1. The gate rejects it with exit code 1 and verifies that the previous passing JSON remains byte-for-byte unchanged. This is a deliberate test, not a production incident.</p>
+<h2>Reproducible evidence</h2>
+<p class="fine" id="recorded"></p>
+<p class="fine">Dataset fingerprint<br><code id="fingerprint"></code></p>
+<div class="actions"><a href="latest.json" download>Download passing report</a><a href="https://github.com/VasilenData/research-assistant-eval/tree/main/gate/evidence">Per-question results and failure drill</a><a href="https://github.com/VasilenData/research-assistant-eval/blob/main/docs/RELEASE_GATE.md">Protocol and limitations</a></div>
+</section>
+<footer><a href="https://vasilendata.github.io/">Portfolio</a> · <a href="https://github.com/VasilenData/research-assistant-eval">Source code</a><p class="fine">A passing report demonstrates the configured checks on this dataset. It does not automatically deploy a model or establish performance on independent user questions.</p></footer>
+</main>
+<script>
+'use strict';
+const set=(id,value)=>document.getElementById(id).textContent=value;
+fetch('latest.json').then(r=>{if(!r.ok)throw new Error('Report unavailable');return r.json()}).then(r=>{
+ if(r.schema_version!==1)throw new Error('Unsupported report version');
+ set('status',r.passed?'Recorded candidate passed':'Recorded candidate rejected');
+ set('tasks',r.candidate.tasks);set('quality',r.candidate.mean_quality.toFixed(3));set('latency',r.candidate.p95_latency_ms.toFixed(2)+' ms');
+ for(const system of [r.baseline,r.candidate]){const tr=document.createElement('tr');for(const v of [system.name,system.mean_quality.toFixed(4),system.p50_latency_ms.toFixed(2)+' ms',system.p95_latency_ms.toFixed(2)+' ms',(system.error_rate*100).toFixed(1)+'%']){const td=document.createElement('td');td.textContent=v;tr.append(td)}document.getElementById('scores').append(tr)}
+ set('delta','Candidate minus baseline: '+r.quality_delta.toFixed(4)+' MRR. Paired source-group bootstrap 95% interval: ['+r.paired_cluster_95pct_interval.map(x=>x.toFixed(4)).join(', ')+']. Exploratory; not adjusted for repeatedly choosing candidates.');
+ const labels={absolute_quality:'Minimum absolute quality',paired_quality_lower_bound:'Paired quality regression margin',p95_latency:'p95 latency budget',mean_cost:'External API fee budget',error_rate:'Task error budget'};
+ for(const [key,value] of Object.entries(r.checks)){const li=document.createElement('li');li.textContent=(value?'PASS · ':'FAIL · ')+labels[key];document.getElementById('checks').append(li)}
+ set('cost',r.protocol.cost_scope+'. Measured API fees: $'+r.candidate.mean_cost_usd.toFixed(4)+' per query. This is not a total infrastructure-cost estimate.');
+ set('recorded','Recorded '+r.candidate_system.created_utc+'. '+r.protocol.latency_scope+'.');set('fingerprint',r.dataset_sha256);document.getElementById('results').hidden=false;
+}).catch(e=>{set('status','Evidence not loaded');set('error',e.message+'. Open this page through an HTTP server or use the repository reports.');document.getElementById('error').hidden=false});
+</script>
+</html>

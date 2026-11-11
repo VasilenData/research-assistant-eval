@@ -8,6 +8,23 @@ The point of the repo is the measurement: every component is added, switched off
 
 Everything runs on a CPU. No API keys, no paid model.
 
+## New: versioned regression release gate
+
+The repository now also includes an inspectable [release gate](docs/RELEASE_GATE.md):
+paired per-question reports, source/model/prompt fingerprints, quality and
+latency/API-fee/error budgets, CI evaluation, and atomic publication of the last
+passing result. A new real retrieval run compared TF-IDF and BM25 on 160 existing
+test questions over 2,835 abstracts. MRR@10 was 0.9854 versus 1.0000, respectively;
+these generated, source-specific questions favor lexical retrieval and do not
+establish real-user accuracy. A deliberate reversed-ranking regression scored
+0.1000, was rejected, and left the previous passing report unchanged.
+
+See the [per-question evidence](gate/evidence/), [passing JSON](docs/gate/latest.json)
+and [report viewer](docs/gate/index.html). Run locally with
+`PYTHONPATH=src python scripts/check_release_gate.py` after installing
+`requirements-gate.txt`. This is a retrieval gate, not a rerun of the historical
+LLM tables below or an independent factuality assessment.
+
 ## What was measured
 
 Corpus: 2,835 arXiv abstracts (cs.CL, cs.IR, cs.LG, cs.DB) from June to October 2026, selected to reduce overlap with the answer model's training period; publication dates alone do not prove the absence of memorized or related knowledge.
