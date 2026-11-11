@@ -7,7 +7,10 @@ Stages: (1) retrieval quality of four retrievers, (2) abstention threshold chose
 """
 from __future__ import annotations
 
+import argparse
 import json
+import platform
+from datetime import datetime, timezone
 import random
 import re
 import time
@@ -18,6 +21,7 @@ import numpy as np
 from . import metrics
 from .assistant import ABSTAIN, Assistant, split_sentences, strip_citations
 from .corpus import ROOT, load
+from .evaluation_release import file_hashes, identify, publish, validate_tasks
 from .retrieval import Retriever
 from .verify import NLI, best_support, check_answer, guard
 
@@ -70,11 +74,24 @@ def corpus_df(papers: list) -> dict[str, int]:
 
 def choose_threshold(retriever: Retriever, dev_ans: list[dict], dev_unans: list[dict]) -> tuple[float, dict]:
     """Retrieval-confidence gate: abstain when the best reranker score is below tau. Pick tau on DEV only."""
-    top = lambda q: retriever.search(q, 1)[0][1]  # noqa: E731
+    if not dev_ans or not dev_unans:
+        raise ValueError("both development classes are required")
+    def top(question):
+        hits = retriever.search(question, 1)
+        if not hits or not np.isfinite(hits[0][1]):
+            raise ValueError("development retrieval must return a finite top score")
+        return hits[0][1]
     a = np.array([top(r["question"]) for r in dev_ans])
     u = np.array([top(r["question"]) for r in dev_unans])
-    best = max(np.unique(np.concatenate([a, u])), key=lambda t: ((a >= t).mean() + (u < t).mean()) / 2)
+    observed = np.unique(np.concatenate([a, u]))
+    reject_all = np.nextafter(observed[-1], np.inf)
+    if not np.isfinite(reject_all):
+        raise ValueError("development scores exceed the supported finite range")
+    # Include both extreme policies; ties prefer more abstention.
+    candidates = np.r_[observed, reject_all]
+    best = max(candidates, key=lambda t: (((a >= t).mean() + (u < t).mean()) / 2, t))
     return float(best), {"dev_answerable_pass": float((a >= best).mean()), "dev_unanswerable_blocked": float((u < best).mean())}
+
 
 
 def judge_validation(nli: NLI, answerable: list[dict], papers: list, id_to_idx: dict[str, int], seed: int = 3) -> dict:
@@ -107,18 +124,27 @@ def summarize(name: str, rows: list[dict]) -> dict:
         "false_abstain_rate": metrics.mean([float(r["abstained"]) for r in ans]),
         "correct_abstain_rate": metrics.mean([float(r["abstained"]) for r in una]),
         "unanswerable_answered_confidently": metrics.mean([float(not r["abstained"]) for r in una]),
-        "faithfulness": (sum(r["n_supported"] for r in answered) / sent_total) if sent_total else float("nan"),
-        "valid_citation_rate": (sum(r["n_valid_cite"] for r in answered) / sent_total) if sent_total else float("nan"),
+        "faithfulness": (sum(r["n_supported"] for r in answered) / sent_total) if sent_total else None,
+        "valid_citation_rate": (sum(r["n_valid_cite"] for r in answered) / sent_total) if sent_total else None,
         "mean_seconds": metrics.mean([r["seconds"] for r in rows]),
     }
     return out
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Run a new immutable full evaluation; historical reports are preserved.")
+    parser.add_argument("--out", type=Path, default=ROOT / "results" / "runs" / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"))
+    args = parser.parse_args()
+    if args.out.exists():
+        parser.error("output release already exists; choose a new --out path")
     root = ROOT
+    source_paths = [root / "data" / name for name in ("arxiv_corpus.jsonl", "answerable.jsonl", "unanswerable.jsonl")]
+    before_sources = file_hashes(source_paths)
     papers = load()
     id_to_idx = {p.id: i for i, p in enumerate(papers)}
     answerable, unanswerable = jl(root / "data" / "answerable.jsonl"), jl(root / "data" / "unanswerable.jsonl")
+    answerable, unanswerable = identify(answerable, "answerable"), identify(unanswerable, "unanswerable")
+    validate_tasks(answerable, unanswerable, [p.id for p in papers])
     retriever = Retriever([p.text for p in papers], cache=root / "data" / "embeddings.npy")
     results: dict = {"corpus_papers": len(papers), "answerable": len(answerable), "unanswerable": len(unanswerable)}
 
@@ -132,6 +158,8 @@ def main():
     dev_a, test_a = answerable[:N_DEV], answerable[N_DEV:]
     dev_u, test_u = unanswerable[:N_DEV_UNANS // 2] + unanswerable[15:15 + N_DEV_UNANS // 2], \
         unanswerable[N_DEV_UNANS // 2:15] + unanswerable[15 + N_DEV_UNANS // 2:]
+    if not test_a or not test_u:
+        raise ValueError("both test classes must remain after the fixed development split")
     tau, tau_info = choose_threshold(retriever, dev_a, dev_u)
     results["abstention_threshold"] = {"tau": tau, **tau_info, "dev_answerable": len(dev_a), "dev_unanswerable": len(dev_u)}
 
@@ -152,9 +180,9 @@ def main():
                 a = asst.ask_closed_book(q)
             elif system == "RAG":
                 a = rag = asst.ask(q)
-                rag_secs = time.time() - t0 - llm.last_wall + llm.last_seconds
+                rag_secs = time.time() - t0 + (llm.last_seconds - llm.last_wall if rag.sources else 0)
             elif system == "RAG + retrieval gate":
-                a = rag if rag.scores[0] >= tau else type(rag)(q, ABSTAIN, rag.sources, rag.scores, True, "low retrieval score")
+                a = rag if rag.scores and rag.scores[0] >= tau else type(rag)(q, ABSTAIN, rag.sources, rag.scores, True, "low retrieval score")
                 gate_ans = a
             else:
                 a = gate_ans
@@ -164,6 +192,8 @@ def main():
             secs = {"RAG + retrieval gate": rag_secs if system == "RAG + retrieval gate" else None}.get(system)
             if system == "RAG + gate + claim guard":
                 secs = rag_secs + (time.time() - t0)
+            elif system == "RAG":
+                secs = rag_secs
             elif secs is None:
                 secs = time.time() - t0 - llm.last_wall + llm.last_seconds
             # claims are judged against the sources the answer cites; closed-book has none, so judge it against the gold paper
@@ -181,6 +211,8 @@ def main():
             if it["kind"] == "answerable" and not a.abstained:
                 ref_entailed = float(nli.entailment([(strip_citations(a.text), it["reference"])])[0] >= 0.5)
             systems[system].append({
+                "task_id": it["task_id"], "input_sha256": it["input_sha256"], "reference_sha256": it["reference_sha256"],
+                "answer": a.text, "source_ids": [p.id for p in a.sources], "retrieval_scores": a.scores,
                 "kind": "answerable" if it["kind"] == "answerable" else it["kind"], "abstained": a.abstained,
                 "ref_entailed": ref_entailed, "n_sentences": len(checks), "n_supported": sum(c.supported for c in checks),
                 "n_valid_cite": sum(c.valid_citation for c in checks), "seconds": secs,
@@ -195,9 +227,17 @@ def main():
     results["systems"] = [summarize(k, v) for k, v in systems.items()]
     results["gold_in_top4_sources"] = metrics.mean([float(r["gold_in_sources"]) for r in systems["RAG"] if r["kind"] == "answerable"])
     results["test_split"] = {"answerable": len(test_a), "unanswerable": len(test_u)}
-    (root / "results").mkdir(exist_ok=True)
-    (root / "results" / "results.json").write_text(json.dumps(results, indent=2))
-    (root / "results" / "samples.json").write_text(json.dumps(samples, indent=2))
+    if file_hashes(source_paths) != before_sources:
+        raise ValueError("source data changed during evaluation; no release published")
+    source_identity = {Path(name).name: value for name, value in before_sources.items()}
+    code_identity = {Path(name).name: value for name, value in file_hashes(list(Path(__file__).parent.glob("*.py"))).items()}
+    provenance = {"sources_sha256": source_identity, "code_sha256": code_identity, "python": platform.python_version(),
+                  "numpy": np.__version__, "llm": llm.provenance,
+                  "development_task_ids": [r["task_id"] for r in dev_a + dev_u],
+                  "threshold_rule": "balanced development accuracy; ties favor abstention; includes reject-all policy",
+                  "judging": "same NLI judge as the historical evaluator; no independent human labels"}
+    publish(args.out, results, samples, systems, items, provenance)
+
     print(json.dumps(results, indent=2))
 
 
