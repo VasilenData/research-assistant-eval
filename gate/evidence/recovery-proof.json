@@ -1,0 +1,6 @@
+{
+  "scope": "Deliberately reversed real BM25 top-10 rankings; this is a recovery exercise, not an observed production incident",
+  "regression_exit_code": 1,
+  "last_passing_preserved": true,
+  "last_passing_sha256": "b9d4c9596983be9d7ce6df14d5c98c7412a8247fa0c4dddfd92ced5fd595a761"
+}

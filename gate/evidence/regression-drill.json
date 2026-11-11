@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "passed": false,
+  "checks": {
+    "absolute_quality": false,
+    "paired_quality_lower_bound": false,
+    "p95_latency": true,
+    "mean_cost": true,
+    "error_rate": true
+  },
+  "baseline": {
+    "name": "bm25",
+    "tasks": 160,
+    "groups": 160,
+    "mean_quality": 1.0,
+    "p50_latency_ms": 3.416550000110874,
+    "p95_latency_ms": 4.946535000090079,
+    "mean_cost_usd": 0.0,
+    "error_rate": 0.0
+  },
+  "candidate": {
+    "name": "broken-bm25",
+    "tasks": 160,
+    "groups": 160,
+    "mean_quality": 0.09999999999999999,
+    "p50_latency_ms": 3.6748499996974715,
+    "p95_latency_ms": 5.973984999673113,
+    "mean_cost_usd": 0.0,
+    "error_rate": 0.0
+  },
+  "quality_delta": -0.9,
+  "paired_cluster_95pct_interval": [
+    -0.9000000000000001,
+    -0.9000000000000001
+  ],
+  "budget": {
+    "min_quality": 0.85,
+    "allowed_quality_drop": 0.02,
+    "max_p95_latency_ms": 100.0,
+    "max_mean_cost_usd": 0.0,
+    "max_error_rate": 0.0,
+    "bootstrap_iterations": 2000,
+    "seed": 17
+  },
+  "dataset_version": "arxiv-generated-answerable-test-v1",
+  "dataset_sha256": "dafa7ad15dcd77e3816e33d7fd7fd9eefdb2e32b60620b166d68d6603f2ffa33",
+  "corpus_sha256": "48c072f2e1be7f44772393711a2c70713eeadf6f90cd5fa36123c3a17ba22da2",
+  "protocol": {
+    "grader": "gold-document-reciprocal-rank-at-10/v1",
+    "score_definition": "1/rank if the source abstract is in top 10, otherwise 0; higher is better",
+    "latency_scope": "Single warm sequential query: query preprocessing, retrieval and top-10 ranking; excludes index construction and network",
+    "cost_scope": "External API fees USD only; local CPU/electricity/hosting are unpriced and excluded"
+  },
+  "baseline_sha256": "0542ba5988b4e6453234a483773d114c0b752692ee97f0f4d9f3328c4c431e6b",
+  "candidate_sha256": "9ecf097aeefd446ed557cff6fc6b2b32bfa6a4d3f480106b22147e7c896b31df",
+  "gate_source_sha256": "0330b26d86d9e59d8c362d8ff028df023eaded1681276fcb89d47a17258a61d6",
+  "baseline_system": {
+    "model_sha256": "2d7c9822a791754cb35fb8c6df33f17e530ce887d0fe53ebe4537f5904177ce0",
+    "prompt_sha256": "b1307ae4dfc680d1de36081c7442f7db90a82404fe49898b37f305ac98d7f28a",
+    "code_revision": "7504fac1e2282a5099151e83c8018a1f7966ca26",
+    "dirty_worktree": true,
+    "created_utc": "2026-11-11T14:42:44.959228+00:00"
+  },
+  "candidate_system": {
+    "model_sha256": "34744cb5f364224405bebc2cacc07c69891a3175ea142a7a05807fe0613c6642",
+    "prompt_sha256": "b1307ae4dfc680d1de36081c7442f7db90a82404fe49898b37f305ac98d7f28a",
+    "code_revision": "7504fac1e2282a5099151e83c8018a1f7966ca26",
+    "dirty_worktree": true,
+    "created_utc": "2026-11-11T14:42:45.879509+00:00"
+  },
+  "limits": [
+    "Paired source-group percentile bootstrap, exploratory and unadjusted for repeated candidate selection.",
+    "Passing is a configured evidence policy, not proof of generalization or production readiness.",
+    "The producer's grader and dataset limitations still apply."
+  ]
+}
