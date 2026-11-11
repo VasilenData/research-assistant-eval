@@ -30,6 +30,7 @@ class LLM:
         identity = {"format_version": 2, "model_sha256": digest.hexdigest(), "n_ctx": n_ctx,
                     "threads": threads, "runtime": getattr(llama_cpp, "__version__", "unknown"),
                     "seed": 7, "temperature": 0.0}
+        self.provenance = identity.copy()
         self.identity = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
         self.cache: dict[str, dict] = {}
         if self.cache_path and self.cache_path.exists():
