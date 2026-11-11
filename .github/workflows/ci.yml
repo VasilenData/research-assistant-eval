@@ -11,3 +11,17 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - run: ruff check .
       - run: PYTHONPATH=src pytest -q
+  retrieval-release-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-gate.txt
+      - run: PYTHONPATH=src python scripts/check_release_gate.py --output artifacts/gate --publish artifacts/last-passing.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: retrieval-release-evidence
+          path: artifacts/
